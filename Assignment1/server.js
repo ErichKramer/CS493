@@ -3,6 +3,11 @@
  * Apache License
  */
 
+/* Todo: validate isValidReq, create framework for testing posts
+ *
+ *
+ * */
+
 
 
 //INCLUDES
@@ -19,8 +24,8 @@ var businesses = require('./businesses');
 var categories = require('./categories');
 
 //attributes of business that are expected 
-var buisAttr = ["name", "address", "city", "state", "zipcode", "phone", 
-    "category", "subcategory", "user"];
+var buisAttr = ["user", "name", "address", "city", "state", "zipcode", "phone", 
+    "category", "subcategory"];
 var reviewAttr = ["user", "stars", "expense", "review" ];
 var userAttr = ["username", "firstname", "lastname", "email"];
 
@@ -29,18 +34,26 @@ function isValidReq(req, attr){
     var valid = true;   
     for ( a of attr){
         valid = valid && req.body[a]; 
-
+        if( !req.body[a]){
+            console.log(a);
+            console.log(req.body[a]);
+        }
     }
     return valid && req.body;
+}
+function validCategory(cat, subcat){
+    return categories[cat].includes(subcat);
 }
 
 
 
 
+//Top level link.
 app.get('/', function (req, res, next) {
   res.status(200).send("Please visit /businesses\n");
 });
 
+//get ALL businessses
 app.get('/businesses', function(req, res, next){
 
     //Pagination and logic borrowed from Hessro
@@ -79,10 +92,10 @@ app.get('/businesses', function(req, res, next){
 
 });
 
-
-app.get('/businesses/:buisID', function( req, res, next){
+//get a specific business
+app.get('/businesses/:busiID', function( req, res, next){
     console.log(" -- req.params:" , req.params);
-    var buisID = req.params.buisID;
+    var buisID = req.params.busiID;
     if(businesses[buisID]){
         res.status(200).json(businesses[buisID]);
     }else{
@@ -91,7 +104,7 @@ app.get('/businesses/:buisID', function( req, res, next){
 });
  
 
-
+//Send a business to the server, append to dictionary
 app.post('/businesses', function(req, res, next) {
     console.log(" -- req.body:" , req.body);
     if ( isValidReq(req, buisAttr) ){
@@ -110,7 +123,22 @@ app.post('/businesses', function(req, res, next) {
     }
 });
 
+//edit a specific business
+app.put('/businesses/:busiID', function(req, res, next){
+    var id = req.params.busiID;
+    if( businesses[id] ){
+        if( isValidReq(req, buisAttr) ){
+            business[id] = req.body;
+            res.status(200).json({
+                links: {
+                    business: '/businesses/' + id
+                }
+            });
 
+        }
+    }
+
+});
 
 
    

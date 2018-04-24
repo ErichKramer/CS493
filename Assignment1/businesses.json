@@ -1,7 +1,6 @@
 {
   "0":{
     "user":"OwnerMan",
-    "userid":"1",
     "name": "BusinessPlace",
     "addresss": "business way",
     "city": "businessland",
@@ -15,7 +14,6 @@
   },
   "1":{
     "user":"OwnerMan2",
-    "userid":"2",
     "name": "BusinessPlace2",
     "addresss": "business way2",
     "city": "businessland2",

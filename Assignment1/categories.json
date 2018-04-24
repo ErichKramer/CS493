@@ -1,3 +1,18 @@
 {
+  "resturant": [
+    "brewpub", 
+    "chinese",
+    "mexican"
+  ],
+  "shopping": [
+    "grocery",
+    "flowers",
+    "apparel"
+  ],
+  "entertainment":[
+    "movie",
+    "art gallery",
+    "museam"
+  ]
 
 }
