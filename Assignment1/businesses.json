@@ -1,0 +1,31 @@
+{
+  "0":{
+    "user":"OwnerMan",
+    "userid":"1",
+    "name": "BusinessPlace",
+    "addresss": "business way",
+    "city": "businessland",
+    "state": "New York",
+    "zipcode": "00000",
+    "phone": "5555555555",
+    "website":null,
+    "email": null,
+    "category" : "Resturant",
+    "subcategory": "brewpub"
+  },
+  "1":{
+    "user":"OwnerMan2",
+    "userid":"2",
+    "name": "BusinessPlace2",
+    "addresss": "business way2",
+    "city": "businessland2",
+    "state": "New York2",
+    "zipcode": "00001",
+    "phone": "5555555556",
+    "website":"lmao.biz.legit.ru",
+    "email": "totallyDependable@protonmail.com",
+    "category" : "Resturant2",
+    "subcategory": "brewpub2"
+  }
+
+}

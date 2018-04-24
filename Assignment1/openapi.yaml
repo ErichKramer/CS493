@@ -1,0 +1,13 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: Business Review APi
+  description: API for business information and review logging
+
+  paths:
+    /: Welcome page
+    /businesses:
+      get:
+        summary: Fetch a list of all businesses
+        description: returns paginated list of businesses /w links to other pages
+
