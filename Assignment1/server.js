@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 var businesses = require('./businesses');
-var categories = require('./categories'
+var categories = require('./categories');
 
 //attributes of business that are expected 
 var buisAttr = ["name", "address", "city", "state", "zipcode", "phone", 
