@@ -3,10 +3,6 @@
  * Apache License
  */
 
-/* Todo: validate isValidReq, create framework for testing posts
- *
- *
- * */
 
 
 
@@ -32,6 +28,7 @@ var buisAttr = ["user", "name", "address", "city", "state", "zipcode", "phone",
 var reviewAttr = ["user", "stars", "expense", "review" ];
 var userAttr = ["username", "firstname", "lastname", "email"];
 
+
 //Above attributes used here to validate
 function isValidReq(req, attr){
     var valid = true;   
@@ -44,6 +41,8 @@ function isValidReq(req, attr){
     }
     return valid && req.body;
 }
+
+
 function validCategory(cat, subcat){
     return categories[cat].includes(subcat);
 }
@@ -178,12 +177,27 @@ app.delete('/businesses/:busiID', function(req, res, next){
  * -POST REVIEW
  * -PUT EDITED REVIEW
  * -DELETE EXISTING REIVEW
+ * -REVIEWS ARE ONLY GOT FROM BUSINESSES
  * */
+
+app.post('', 
+
+app.put('',
+
+app.delete('/businesses/:busiID/reviews', function(req, res, next){
+    console.log(" -- req.body", req.body);
+    var id = req.params.busiID;
+    var reviewID = req.body.reviewid;
+
+    if( reviewID
+
+});
 
 
 /*
  * BEGIN USER SECTION
  * USERS MAY BE OWNERS OF BUSINESSES
+ * USERS HAVE AN ADMIN FLAG WHICH MAY BE SET
  * MAY SUBMIT PHOTOS OR REVIEWS
  * MAY EDIT OR DELETE ANY INFORMATION THEY HAVE
  * CONTRIBUTED. PHOTOS OR REVIEWS OR BUSINESSES
@@ -191,29 +205,93 @@ app.delete('/businesses/:busiID', function(req, res, next){
  * THEY MAY BE DELETED
  * USERS ARE CREATED WHEN THEY ADD A NEW OBJECT
  * -GET USERS, OR A SPECIFIC USER AND ALL THEIR OBJECTS
+ * -POST, ADD A USER
  * -PUT EDIT USER INFORMATION
  * -DELETE REMOVE A USER WHICH HAS NO ASSOCIATED OBJECTS
- *
+ * 
  * */
 
+//give all users
+app.get('/users', function(req, res, next){
 
+});
+
+//get a single user
+app.get('/users/:userID', function(req, res, next){
+    var id = req.params.userID;
+});
+
+//add a user
+app.post('/users', function(req, res, next){
+
+});
+
+//edit a user that exists. 
+app.put('/users/:userID', function(req, res, next){
+
+});
+
+//delete a user (also delete their related businesses and info)
+app.delete('/users/userID', function(req, res, next){
+    var id = req.params.userID;
+});
 
 
 /*
  * BEGIN PHOTO SECTION
  * PHOTOS ARE ASSOCIATED WITH A USER AND A BUSINESS
- * -GET PHOTOS WHICH EXIST UNDERNEATH A BUSINESS
+ * PHOTOS ARE FOUND WHEN 
  * -POST A PHOTO TO A BUSINESS BY A USER
  * -PUT A PHOTO, MODIFY IT OR RELATED INFORMATION
  * -DELTE AN EXISTING PHOTO FOR A BUSINESS
- *
- *
  */
 
-   
+app.post('/businesses/:businessID/photos', function( req, res, next){
+    console.log(" -- req.body", req.body); 
+    var id = req.params.businessID;
+    
+});
 
-//Catch bad request
-app.use('*', function(req, res, next){
+app.put('/businesses/:businessID/photos', function(req, res, next){
+    console.log(" -- req.body:", req.body);
+    var id = req.params.businessID;
+    var photoID = parseInt(req.query.photoid);
+
+});
+
+app.delete('/businesses/:businessID/photos', function(req, res, next){
+    console.log(" -- req.body:", req.body);
+    var id = req.params.businessID;
+    var photoID = parseInt(req.query.photoid);
+    //if undefined or bad value
+    if( photoid < 0 || photoid > businesses[id].photos.length){
+        next();
+    } else{
+        businesses[id].photos[photoID] = null;
+    }
+
+});
+
+
+
+/* CATEGORY AND SUBCATEGORY
+ * USERS WHICH ARE ADMIS MAY ADD CATEGORIES 
+ * AND MAY ADD SUBCATEGORIES 
+ * -GET CATEGORIES
+ * -GET CATEGORIES/SUBCATEGORY
+ * -DELETE [ADMIN] CATEGORIES
+ * -POST ADMIN 
+ * -PUT ADMIN EDIT
+ * 
+ * */
+
+app.get('/categories', function(req, res, next){
+
+});
+
+app.get('/categories/:catID', function(req, res) {
+
+    var catID = req.params.catID;
     res.status(404).json({
         err: "Path: "+ req.url + " Does Not Exist. :("
     });

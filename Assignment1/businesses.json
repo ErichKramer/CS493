@@ -10,7 +10,9 @@
     "website":null,
     "email": null,
     "category" : "Resturant",
-    "subcategory": "brewpub"
+    "subcategory": "brewpub",
+    "photos": [],
+    "reviews":[]
   },
   "1":{
     "user":"OwnerMan2",
@@ -23,7 +25,9 @@
     "website":"lmao.biz.legit.ru",
     "email": "totallyDependable@protonmail.com",
     "category" : "Resturant2",
-    "subcategory": "brewpub2"
+    "subcategory": "brewpub2",
+    "photos":[],
+    "reviews":[]
   }
 
 }
