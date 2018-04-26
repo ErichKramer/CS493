@@ -565,18 +565,55 @@ app.get('/categories/:catID', function(req, res,next) {
     if( !categories[catID]){
         next();
     }
-    
+    res.status(200).json( categories[catID] );
+});
+
+//add a category or subcategory. affirm that category: subcategory is an option,
+//adding category as necessary, subcategory alwyas with error if it already exists
+app.post('/categories', function(req, res, next){
+    console.log(' -- req.body', req.body);
+    var catID = req.body.category;
+    if( ! req.body.category || ! req.body.subcategory){
+        res.status(400).json({
+            err: 'Malformed expression [post]. Did you fill all fields?'
+        });
+    }
+    if( !categories[catID]){
+        categories[catID] = [];
+    }
+    if( !categories[catID].includes( req.body.subcategory) ){
+        categories[catID].push(req.body.subcategory);
+    }
+
+    res.status(201).json({
+        category: req.body.category,
+        subcategory: req.body.subcategory,
+        links: {
+            categories: '/categories'
+            businesses: '/businesses'
+        }
+    });
+
 
 });
 
-app.post('/categories/:catID', function(req, res, next){
-    console.log();
-});
-
+//edit a category
 app.put('/categories/:catID', function(req, res, next){
 
-    console.log();
+
+
 });
+
+
+
+//if no subcategory clear whole category
+//if category and subcategory delete only subcategory
+//if no category error
+app.delete('/categories/:categoryid' function(req, res, next){
+
+
+}
+
 
 
 app.use('*', function(req, res, next){
