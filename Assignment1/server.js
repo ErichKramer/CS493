@@ -4,6 +4,14 @@
  */
 
 
+/*
+ * TODO: robust python test library
+ * implement a reivews get so I can query a business
+ *
+ *
+ *
+ * */
+
 
 
 //INCLUDES
@@ -16,10 +24,11 @@ var port = process.env.PORT || 8000;
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+
+//NOTE THAT THIS INFORMATION IS NOT MEANT TO BE USED
+//IT IS ONLY FOR DEBUG/DEMO PURPOSES
 var users      = require('./users'); 
 var businesses = require('./businesses');
-//categories and subcategories can be edited in categories.json
-//here admins must modify them by hand
 var categories = require('./categories');
 
 //attributes of business that are expected 
@@ -180,16 +189,30 @@ app.delete('/businesses/:busiID', function(req, res, next){
  * -REVIEWS ARE ONLY GOT FROM BUSINESSES
  * */
 
-app.post('', 
-
-app.put('',
-
-app.delete('/businesses/:busiID/reviews', function(req, res, next){
+app.post('/businesses/:buisID/reviews', function(req,res,next){
     console.log(" -- req.body", req.body);
-    var id = req.params.busiID;
-    var reviewID = req.body.reviewid;
+    console.log(" -- req.params", req.params);
 
-    if( reviewID
+});
+
+app.put('/businesses/:buisID/reviews/:revID',function(req,res,next){
+    console.log(" -- req.body", req.body);
+    console.log(" -- req.params", req.params);
+    var id = req.params.busiID;
+    var reviewID = req.params.revID;
+
+
+    //validate buisiness and review ID, validate user is owner of review
+});
+
+app.delete('/businesses/:busiID/reviews/:revID', function(req, res, next){
+    console.log(" -- req.body", req.body);
+    console.log(" -- req.params", req.params);
+    var id = req.params.busiID;
+    var reviewID = req.params.revID;
+
+    //validate buisiness and review ID, validate user is owner of review
+    //then delete
 
 });
 
@@ -286,6 +309,34 @@ app.delete('/businesses/:businessID/photos', function(req, res, next){
  * */
 
 app.get('/categories', function(req, res, next){
+
+    var page = parseInt(req.query.page) || 1;
+    var numPerPage = 10;
+    var lastPage = Math.ceil(categories.length/numPerPage);
+    page = page < 1 ? 1:page;
+    page = page > lastPage ? lastPage : page;
+
+    var start = (page-1) * numPerPage;
+    var end = start + numPerPage;
+    var pageCat = Object.entries(categories).slice(start, end);
+    var links = {};
+    if (page < lastPage){
+        links.nextPage = '/categories?page=' + (page+1);
+        links.lastPage = '/categories?page=' + lastPage;
+    }
+    if (page > 1){
+        links.prevPage = '/categories?page=' + (page-1);
+        links.firstPage = '/categories?page=1';
+    }
+    res.status(200).json({
+        categories: pageCat,
+        pageNumber: page,
+        totalPages: lastPage,
+        pageSize: numPerPage,
+        totalCount: categories.length,
+        links:links
+    });
+
 
 });
 

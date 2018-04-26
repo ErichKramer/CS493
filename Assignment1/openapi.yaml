@@ -10,4 +10,57 @@ info:
       get:
         summary: Fetch a list of all businesses
         description: returns paginated list of businesses /w links to other pages
+        operationId: getBusinesses
+        tags: 
+          - businesses
+        parameters:
+          - name: page
+            in: query
+            description: Specifies the page to be returned
+            schema:
+              type: integer
+              minimum: 1
+              default: 1
+        responses:
+          200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    pageNumber:
+                      type: integer
+                      description: Page number of returned businesses
+                      example: 1
+                    totalPages: 
+                      type: integer
+                      descritption: Total numbmer of pages available
+                      example: 30
+                    pageSize:
+                      type: integer
+                      description: Number of elements per page
+                      example: 10
+                    totalCount:
+                      type: integer
+                      description: Total number of businesses
+                      example: 400
+                    businesses:
+                      type: array
+                      description: The returned businesses
+                      items: 
+                        $ref: #/components/schemas/Business
+
+  components:
+    schemas:
+      Business:
+        descritpion: An object containing information about a business
+        type: object
+
+
+
+      User:
+      Review:
+      Photo:
+      Category:
 
