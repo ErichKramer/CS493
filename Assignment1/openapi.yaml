@@ -49,18 +49,175 @@ info:
                       type: array
                       description: The returned businesses
                       items: 
-                        $ref: #/components/schemas/Business
+                        $ref: '#/components/schemas/Business'
+      post:
+    /businesses/{busiID}:
+      parameters:
+      get: 
+      put:
+      delete:
+    /businesses/{busiID}/reviews:
+      parameters:
+      post:
+    /businesses/{busiID}/reviews/{revID}:
+      parameters:
+      delete:
+      put:
+    /businesses/{busiID}/photos:
+      parameters:
+      post:
+      put:
+      delete:
+    /users:
+      parameters:
+      get:
+    /users/{userID}:
+      parameters:
+      get:
+      put:
+      delete:
+
+
+
 
   components:
     schemas:
+      User:
+        description: An object representing a user
+        type: object
+        properties:
+          username:
+            type: string
+            description: Unique username associated with user
+            example: UserMan
+          firstname:
+            type: string
+            description: First name of user
+            example: John
+          lastname:
+            type: string
+            description: Last name of user
+            example: Hancock
+          email:
+            type: string
+            description: associated email for a user
+            example: JohnHancock@cisco.net
+        required:
+          - username
+          - firstname
+          - lastname
+          - email
+            
       Business:
         descritpion: An object containing information about a business
         type: object
+        properties:
+          name:
+            type: string
+            description: Name of business
+            example: Escort services LTD.
+          user:
+            type: 
+              $ref: '#/components/schemas/User'
+            description: unique identifier for user object
+            example: Business Man Person
+          address:
+            type: string
+            description: location of business
+            example: 321 Waverly Place
+          city:
+            type: string
+            description: city of business
+            example: New York City
+          state: 
+            type: string
+            description: state containing business
+            example: New York State
+          zipcode:
+            oneOf:
+              - type: integer
+              - type: string
+            description: zipcode of business
+            example: 97070
+          phone:
+            oneOf:
+              - type: integer
+              - type: string
+            description: contact number for business
+            example: 18005551234
+          website: 
+            type: string
+            description: Web address for business
+            example: "www.businessworks.ru"
+          email:
+            type: string
+            description: contact email for business
+            example: "ourbiz@biz.net"
+          category:
+            type: string
+            description: category classification for the business
+            example: resturant
+          subcategory: 
+            type: string
+            description: subcategory class for the business
+            example: brewpub
+          photos: 
+            type: array
+            items:
+              type:
+                $ref: '#/components/schemas/Photo'
+            description: array of associated photos with business
+          reviews:
+            type: array
+            items:
+              type:
+                $ref: '#/components/schemas/Review'
+            description: array of reviews for a business
+        required:
+          - user
+          - name
+          - address
+          - city
+          - state
+          - zipcode
+          - phone
+          - category
+          - subcategory
+          - photos
+          - reviews
 
+    Review:
+      description: An object representing a user review and ratings
+      type: object
+      properties:
+        user:
+          type: string
+          description: Unique identifier string for user
+          example: Userman
+        stars:
+        expense:
+        text:
+          type: string
+          description: User provided textual feedback on business
+          example: I hate this place, they kidnapped my dog
 
+    Photo:
 
-      User:
-      Review:
-      Photo:
-      Category:
+    Category:
 
+    Error:
+      description: >
+        An object representing an error response from the API.
+      type: object
+      properties:
+        err:
+          type: string
+          description: A message describing the error.
+
+  tags:
+    - name: businesses
+      description: >
+        API endpoints related to businesses resources
+    - name: reviews
+      description: >
+        API endpoint for reviews that exist under a business

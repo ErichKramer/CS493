@@ -51,7 +51,7 @@ def randDel(link):
     #requests.delete(link, json=slated)
 
 
-randDel("")
+#randDel("")
 
 if len(sys.argv) < 2:
     print("Usage: curl.py [number posts] [num deletes]")
