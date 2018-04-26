@@ -26,7 +26,7 @@ def getBuis():
 def randPost(link, fields, category=[], subcategory=[]):
     payload = {field: ''.join(random.choices( string.ascii_uppercase +\
             string.digits, k=8)) for field in fields }
-
+    print(link)
     if (category and subcategory):
         #category must be specified, subcategory may be a list
         payload["category"] = category
@@ -35,13 +35,12 @@ def randPost(link, fields, category=[], subcategory=[]):
             payload["subcategory"] = random.choice(subcategory)
         else:
             payload["subcategory"] = subcategory
-
+    print("Payload:", payload)
     response = requests.post(link, json=payload) 
     #saved.append(payload)
     print(response.text)
     print(response.status_code, response.reason)
     return response
-
 
 def randDel(link):
     #only digs into the returned page for "random delete"
@@ -53,11 +52,17 @@ def randDel(link):
 
 #randDel("")
 
+reviewFields = ["user", "stars", "expense", "text"]
+userFields = ["username", "firstname", "lastname", "email"]
+randPost(base+"/businesses/"+'0'+"/reviews", reviewFields)
+
 if len(sys.argv) < 2:
     print("Usage: curl.py [number posts] [num deletes]")
     exit(1)
 for _ in range(int(sys.argv[1])):
     randPost( base + "/businesses", buisFields, category="resturant", subcategory=["mexican"])
+
+
 
 #if len(sys.argv) > 2:
 #    for _ in range( int(sys.argv[2]) ):

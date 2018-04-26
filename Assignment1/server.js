@@ -38,14 +38,13 @@ var buisAttr = ["user", "name", "address", "city", "state", "zipcode", "phone",
     "category", "subcategory"];
 var reviewAttr = ["user", "stars", "expense", "text" ];
 var userAttr = ["username", "firstname", "lastname", "email"];
-
+var photoAttr = ["user", "photo", "caption" ];
 
 //Above attributes used here to validate
-function isValidReq(req, attr, buisSwitch){
-    var valid = true;   
-//    if( buisSwitch){
-//        valid = valid && (validCategory( req.category, req.subcategory) );
-//    }
+function isValidReq(req, attr){
+    var valid = true; 
+
+
     for ( a of attr){
         valid = valid && req.body[a]; 
         if( !req.body[a]){
@@ -200,13 +199,13 @@ app.delete('/businesses/:busiID', function(req, res, next){
 
 
 //takes a body containing a review object, review has user, star, expense and optional text
-app.post('/businesses/:buisID/reviews', function(req,res,next){
+app.post('/businesses/:busiID/reviews', function(req,res,next){
     console.log(" -- req.body", req.body);
     console.log(" -- req.params", req.params);
     var id = req.params.busiID;
-    var userID = parseInt(req.body.user);
+    var userID = req.body.user;
 
-    if( !( isValidReq( req.body, reviewAttr) ) ){
+    if( !( isValidReq( req, reviewAttr) ) ){
         res.status(400).json({
             err: "Malformed review in req body. Did you fill all fields?"
         });
@@ -215,8 +214,10 @@ app.post('/businesses/:buisID/reviews', function(req,res,next){
     if( !businesses[id]){ 
         next();
     }
+
     var busi = businesses[id];
-    
+    console.log(busi, id);
+    console.log(businesses['0']);
     if( busi.reviews[userID]){
         res.status(400).json({
             err: "That user has already submitted a review. Please POST for edits."
@@ -248,8 +249,8 @@ app.put('/businesses/:buisID/reviews/:revID',function(req,res,next){
         next();
     }
     var buis = businesses[id];
-    if( isValidReq( req.body.review, reviewAttr) ){
-        businesses[id].reviews[revID] = req.body.reviews;
+    if( isValidReq( req.body, reviewAttr) ){
+        businesses[id].reviews[revID] = req.body;
 
         res.status(201).json({
             id:id,
@@ -347,11 +348,14 @@ app.get('/users/:userID', function(req, res, next){
         var reviews = [];
         var buis = [];
         for( b in Object.entries(businesses).map(x=>x[1]) ){
+            var name = b.name;
+            var reviews = b.reviews;
+
             if( b.reviews[requestName]){
-                reviews.push( {b.name: b.reviews[requestName] };
+                reviews.push( { name : b.reviews[requestName] } );
             }
             if( b.photos[requestName]){
-                photos.push( {b.name: b.photos[requestName] };
+                photos.push( { name: b.photos[requestName] } );
             }
             if( b.user == requestName){
                 buis.push(b);
@@ -362,7 +366,7 @@ app.get('/users/:userID', function(req, res, next){
         user.reviews = reviews;
         user.photos = photos;
         user.buisinesses = buis;
-        res.stats(200).json( user );
+        res.status(200).json( user );
 
     }else{
         next();
@@ -372,7 +376,24 @@ app.get('/users/:userID', function(req, res, next){
 
 //add a user
 app.post('/users', function(req, res, next){
-    
+    console.log(" -- req.body:", req.body);
+
+    if( isValidReq( req.body, userAttr) ){
+        users[req.body.username] = req.body;
+        
+        res.status(201).json({
+            userID: req.body.username,
+            links: {
+                users: '/users',
+                user: '/users/' + req.body.username
+            }
+        });
+    }else{
+        res.status(400).json({
+            err: 'Malformed request [post]. Did you fill all fields?'
+        });
+    }
+
 });
 
 //edit a user that exists. 
@@ -380,8 +401,21 @@ app.put('/users/:userID', function(req, res, next){
     var userID = req.params.userID;
 
     if( users[userID] ){
-        if isValidReq(req.user, 
-    }
+        if (isValidReq(req.body, userAttr)){
+            users[userID] = req.body;
+            res.status(200).json({
+                links: {
+                    users: '/users',
+                    user: '/users/' + userID
+                }
+            });
+
+        }else{
+            res.status(400).json({
+                err: 'Malformed request [put]. Did you fill all fields?'
+            });
+        }
+    }else{next();}
 });
 
 //delete a user (also delete their related businesses and info)
@@ -408,14 +442,62 @@ app.delete('/users/:userID', function(req, res, next){
 app.post('/businesses/:busiID/photos', function( req, res, next){
     console.log(" -- req.body", req.body); 
     var id = req.params.businessID;
-    
+    var userID = req.body.user;
+
+    if( !businesses[id]){
+        next();
+    }
+
+    if(isValidReq(req, photoAttr)){
+        var photoObj = businesses[id].photos
+        if( !photoObj[userID] ){
+            photoObj[userID] = [];
+        }
+        
+        req.body.ID = photoObj[userID].length;
+        photoObj[userID].push(req.body);
+
+        res.status(201).json({
+            photoOwner: userID,
+            photoid: req.body.ID,
+            links: {
+                businesses: '/businesses',
+                business: '/businesses/' + id,
+                photos: 'businesses/'+id+'/photos'
+            }
+        });
+        
+    }else{
+        res.status(400).json({
+            err:'Malformed request [post]. Did you fill all fields?'
+        });
+    }
 });
 
 app.put('/businesses/:busiID/photos', function(req, res, next){
     console.log(" -- req.body:", req.body);
+    console.log(" -- req.params", req.params);
     var id = req.params.busiID;
     var photoID = parseInt(req.query.photoid);
-
+    var userID = req.query.userID;
+//photos are organized under {'username': [photo0, photo1, photo2] }
+    if( isValidReq(req, photoAttr)){
+        businesses[id].photos[userID][photoID] = req.body;
+        
+        res.status(201).json({
+            businessID: id,
+            photoID: photoID,
+            links: {
+                business: '/buisnesses' + id,
+                photos: '/businesses/' + id + '/photos',
+                reviews: '/businesses/' + id + '/reviews'
+            }
+        });
+    }else{
+        res.status(400).json({
+            err: 'Malformed epxression [put]. Did you fill all fields?'
+        });
+    }
 });
 
 app.delete('/businesses/:busiID/photos', function(req, res, next){
@@ -423,10 +505,13 @@ app.delete('/businesses/:busiID/photos', function(req, res, next){
     var id = req.params.busiID;
     var photoID = parseInt(req.query.photoid);
     //if undefined or bad value
-    if( photoid < 0 || photoid > businesses[id].photos.length){
-        next();
+    
+    //if it looks gross it's because it is
+    if(businesses[id].photos[req.body.user][photoID] ){
+        businesses[id].photos[req.body.user][photoID] = null;
+        res.status(204).end();
     } else{
-        businesses[id].photos[photoID] = null;
+        next();
     }
 
 });
@@ -475,9 +560,22 @@ app.get('/categories', function(req, res, next){
 
 });
 
-app.get('/categories/:catID', function(req, res) {
+app.get('/categories/:catID', function(req, res,next) {
     var catID = req.params.catID;
+    if( !categories[catID]){
+        next();
+    }
+    
 
+});
+
+app.post('/categories/:catID', function(req, res, next){
+    console.log();
+});
+
+app.put('/categories/:catID', function(req, res, next){
+
+    console.log();
 });
 
 
