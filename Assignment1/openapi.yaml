@@ -191,20 +191,53 @@ info:
       type: object
       properties:
         user:
-          type: string
-          description: Unique identifier string for user
-          example: Userman
+          type: 
+            $ref: '#/components/schemas/User'
         stars:
+          type: integer
+          minimum: 1
+          maximum: 5
         expense:
+          type: integer
+          minimum: 1
+          maximum: 4
         text:
           type: string
-          description: User provided textual feedback on business
-          example: I hate this place, they kidnapped my dog
+          example: "This place gave me a new liver, best dinner ever."
+   Photo:
+      description: A photo associated with a business
+      type: object
+      properties:
+        user:
+          type:
+            $ref: '#/components/schemas/User'
+        photo:
+          type: byte
+        caption:
+          type: string
+          description: A description
+          example: This is a photo of me at bigManCorp 
 
-    Photo:
 
     Category:
-
+      description: A category which a business may belong to
+      type: object
+      properties:
+        category: 
+          type: string
+          description: Name of category
+          example: Resturant
+        subcategories:
+          type: array
+          description:
+          items: 
+            type: object
+            properties: 
+              subcategory: 
+                type: string
+                description: descriptive subcategory for a category. 
+                example: Ethno-Brew-blend-coffeepub
+              
     Error:
       description: >
         An object representing an error response from the API.
@@ -213,7 +246,6 @@ info:
         err:
           type: string
           description: A message describing the error.
-
   tags:
     - name: businesses
       description: >
@@ -221,3 +253,12 @@ info:
     - name: reviews
       description: >
         API endpoint for reviews that exist under a business
+    - name: users
+      description: >
+        API endpoints for users.
+    - name: photos
+      description: >
+        API endpoint for photos.
+    - name: categories
+      description: >
+        API endpoint for categories
