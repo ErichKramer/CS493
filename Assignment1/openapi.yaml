@@ -4,261 +4,791 @@ info:
   title: Business Review APi
   description: API for business information and review logging
 
-  paths:
-    /: Welcome page
-    /businesses:
-      get:
-        summary: Fetch a list of all businesses
-        description: returns paginated list of businesses /w links to other pages
-        operationId: getBusinesses
-        tags: 
-          - businesses
-        parameters:
-          - name: page
-            in: query
-            description: Specifies the page to be returned
+paths:
+  /: Welcome page
+  /businesses:
+    get:
+      summary: Fetch a list of all businesses
+      description: returns paginated list of businesses /w links to other pages
+      operationId: getBusinesses
+      tags: 
+        - businesses
+      parameters:
+        - name: page
+          in: query
+          description: Specifies the page to be returned
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pageNumber:
+                    type: integer
+                    description: Page number of returned businesses
+                    example: 1
+                  totalPages: 
+                    type: integer
+                    descritption: Total numbmer of pages available
+                    example: 30
+                  pageSize:
+                    type: integer
+                    description: Number of elements per page
+                    example: 10
+                  totalCount:
+                    type: integer
+                    description: Total number of businesses
+                    example: 400
+                  businesses:
+                    type: array
+                    description: The returned businesses
+                    items: 
+                      $ref: '#/components/schemas/Business'
+    post:
+      summary: Post a business to the web server
+      description: Returns either a success status or error, adds business
+      operationId: postBusinesses
+      tags:
+        - businesses
+      requestBody:
+        requred: true
+        content:
+          application/json:
             schema:
-              type: integer
-              minimum: 1
-              default: 1
-        responses:
-          200:
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    pageNumber:
-                      type: integer
-                      description: Page number of returned businesses
-                      example: 1
-                    totalPages: 
-                      type: integer
-                      descritption: Total numbmer of pages available
-                      example: 30
-                    pageSize:
-                      type: integer
-                      description: Number of elements per page
-                      example: 10
-                    totalCount:
-                      type: integer
-                      description: Total number of businesses
-                      example: 400
-                    businesses:
-                      type: array
-                      description: The returned businesses
-                      items: 
-                        $ref: '#/components/schemas/Business'
-      post:
-    /businesses/{busiID}:
+              $ref: '#/components/schemas/Business'
       parameters:
-      get: 
-      put:
-      delete:
-    /businesses/{busiID}/reviews:
-      parameters:
-      post:
-    /businesses/{busiID}/reviews/{revID}:
-      parameters:
-      delete:
-      put:
-    /businesses/{busiID}/photos:
-      parameters:
-      post:
-      put:
-      delete:
-    /users:
-      parameters:
-      get:
-    /users/{userID}:
-      parameters:
-      get:
-      put:
-      delete:
+        business:
+          type: object
+            $ref: '#components/schemas/Business'
+      responses:
+        201:
+          description: Success, Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Identifier for business, integer in string
+                    example: '0'
+                  links:
+                    type: object
+                    items: 
+                      type: string
+                      description: links to related locations
+                      example: '/businesses'
 
+        400:
+          description: Error, Bad Request
+          content:
+            $ref: '#/components/schemas/Error'
 
+  /businesses/{busiID}:
+    parameters:
+      - name: busiID
+        in: path
+        description: Unique Business identifier
+        schema:
+          type: string:
+        example: "business name thing"
+        required: true
+    get: 
+      summary: Get information about a specific business
+      description: Returns detailed information about a business, reviews and photos
+      operatoinId: getSpecificBusiness
+      tags: 
+        - businesses
+      responses:
+        200: 
+          description: Success
+          content: 
+            application/json: 
+             schema:
+               $ref: '#componenets/schemas/Business'
+    put:
+      summary: update data for a specific business
+      description: Replace data for a given business specified by busiID
+      operatoinId: putBusiness
+      tags:
+        - businesses
+      requestBody:
+        description: Business data to replace the desired business info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Business'
+      responses:
+        200:
+          description: Success
+        400: 
+          description: Malformed input 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
+    delete:
+      summary: Remove information about a business from memory
+      description: Overwrite given user information
+      operatoinId: deleteBusiness
+      tags:
+        - business
+      responses:
+        204:
+          description: Success, correctly deleted
 
-  components:
-    schemas:
-      User:
-        description: An object representing a user
-        type: object
-        properties:
-          username:
-            type: string
-            description: Unique username associated with user
-            example: UserMan
-          firstname:
-            type: string
-            description: First name of user
-            example: John
-          lastname:
-            type: string
-            description: Last name of user
-            example: Hancock
-          email:
-            type: string
-            description: associated email for a user
-            example: JohnHancock@cisco.net
-        required:
-          - username
-          - firstname
-          - lastname
-          - email
-            
-      Business:
-        descritpion: An object containing information about a business
-        type: object
-        properties:
-          name:
-            type: string
-            description: Name of business
-            example: Escort services LTD.
-          user:
-            type: 
+  /businesses/{busiID}/reviews:
+   parameters:
+      - name: busiID
+        in: path
+        description: Unique Business identifier
+        schema:
+          type: string
+        example: "0"
+        required: true
+    post:
+      summary: Post a review for a business to the web server
+      description: Returns either a success status or error, adds review to business
+      operatoinId: postReview
+      tags:
+        - buisinesses
+        - reviews
+      requestBody:
+        requred: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reivew'
+      responses:
+        201:
+          description: Success, Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Identifier for Review, submitted user name
+                    example: UserMan
+                  links:
+                    type: object
+                    items: 
+                      type: string
+                      description: links to related locations
+                      example: '/businesses'
+
+        400:
+          description: Error, Bad Request -- Malformed request or review exists
+          content:
+            $ref: '#/components/schemas/Error'
+
+ /businesses/{busiID}/reviews/{revID}:
+   parameters:
+      - name: busiID
+        in: path
+        description: Unique Business identifier
+        schema:
+          type: string
+        example: "0"
+        required: true
+        
+      - name: revID
+        in: path
+        description: Unique Reivew Identifier
+        schema:
+          type: string
+        example: "ReviewerguyXX"
+        required: true
+   put:
+      summary: update data for a specific review
+      description: Replace data for a given business-> review given by busiID, revID
+      operatoinId: putReview
+      tags:
+        - businesses
+        - reviews
+      requestBody:
+        description: Review data to replace the desired review info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        200:
+          description: Success
+        400: 
+          description: Malformed input 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Remove a review from memory
+      description: Overwrite given review information
+      operatoinId: deleteReview
+      tags:
+        - businesses
+        - reviews
+      responses:
+        204:
+          description: Success, correctly deleted
+      
+  /users:
+     get:
+      summary: Fetch a list of all users
+      description: returns paginated list of users /w links to other pages
+      operationId: getCategories
+      tags: 
+        - User
+      parameters:
+        - name: page
+          in: query
+          description: Specifies the page to be returned
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pageNumber:
+                    type: integer
+                    description: Page number of returned objects
+                    example: 1
+                  totalPages: 
+                    type: integer
+                    descritption: Total numbmer of pages available
+                    example: 30
+                  pageSize:
+                    type: integer
+                    description: Number of elements per page
+                    example: 10
+                  totalCount:
+                    type: integer
+                    description: Total number of objects
+                    example: 400
+                  businesses:
+                    type: array
+                    description: The returned object
+                    items: 
+                      $ref: '#/components/schemas/User'
+    post:
+      summary: Post a User for a business to the web server
+      description: Returns either a success status or error, adds User
+      operatoinId: postUser
+      tags:
+        - users
+      requestBody:
+        requred: true
+        content:
+          application/json:
+            schema:
               $ref: '#/components/schemas/User'
-            description: unique identifier for user object
-            example: Business Man Person
-          address:
-            type: string
-            description: location of business
-            example: 321 Waverly Place
-          city:
-            type: string
-            description: city of business
-            example: New York City
-          state: 
-            type: string
-            description: state containing business
-            example: New York State
-          zipcode:
-            oneOf:
-              - type: integer
-              - type: string
-            description: zipcode of business
-            example: 97070
-          phone:
-            oneOf:
-              - type: integer
-              - type: string
-            description: contact number for business
-            example: 18005551234
-          website: 
-            type: string
-            description: Web address for business
-            example: "www.businessworks.ru"
-          email:
-            type: string
-            description: contact email for business
-            example: "ourbiz@biz.net"
-          category:
-            type: string
-            description: category classification for the business
-            example: resturant
-          subcategory: 
-            type: string
-            description: subcategory class for the business
-            example: brewpub
-          photos: 
-            type: array
-            items:
-              type:
-                $ref: '#/components/schemas/Photo'
-            description: array of associated photos with business
-          reviews:
-            type: array
-            items:
-              type:
-                $ref: '#/components/schemas/Review'
-            description: array of reviews for a business
-        required:
-          - user
-          - name
-          - address
-          - city
-          - state
-          - zipcode
-          - phone
-          - category
-          - subcategory
-          - photos
-          - reviews
+      responses:
+        201:
+          description: Success, Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userID:
+                    type: string
+                    description: Identifier for User, submitted user name
+                    example: UserMan
+                  links:
+                    type: object
+                    items: 
+                      type: string
+                      description: links to related locations
+                      example: '/businesses'
 
-    Review:
-      description: An object representing a user review and ratings
+
+  /users/{userID}:
+    parameters:
+      - name: useriID
+        in: path
+        description: Unique User identifier
+        schema:
+          type: string:
+        example: "name thing"
+        required: true
+    get: 
+      summary: Get information about a specific user
+      description: Returns detailed information about a user, reviews and photots
+      operatoinId: getSpecificUser
+      tags: 
+        - userse
+      responses:
+        200: 
+          description: Success
+          content: 
+            application/json: 
+             schema:
+               $ref: '#componenets/schemas/User'
+    put:
+      summary: update data for a specific user
+      description: Replace data for a given user specified by userID
+      operatoinId: putUser
+      tags:
+        - users
+      requestBody:
+        description: User data to replace the desired user info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: Success
+        400: 
+          description: Malformed input 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Remove information about a user from memory
+      description: Overwrite given user information
+      operatoinId: deleteUser
+      tags:
+        - users
+      responses:
+        204:
+          description: Success, correctly deleted
+      
+  /businesses/{busiID}/photos:
+    parameters:
+      - name: busiID
+        in: path
+        description: Unique Business Identifier
+        schema:
+          type: string
+        example: "0"
+        required: true
+
+    post:
+      summary: Post a photo for a business to the web server
+      description: Returns either a success status or error, adds photo to business
+      operatoinId: postPhoto
+      tags:
+        - buisinesses
+        - photos
+      requestBody:
+        requred: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Photo'
+      parameters:
+        - name: busiID
+          in: path
+          description: Unique business identifier
+          scheme:
+            type: integer
+            example: 0
+            required: true
+      responses:
+        201:
+          description: Success, Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviewID:
+                    type: string
+                    description: Identifier for Photo, submitted user name
+                    example: UserMan
+                  links:
+                    type: object
+                    items: 
+                      type: string
+                      description: links to related locations
+                      example: '/businesses'
+
+        400:
+          description: Error, Bad Request -- Malformed request or review exists
+          content:
+            $ref: '#/components/schemas/Error'
+
+   put:
+      summary: update data for a specific photo
+      description: Replace data for a given photo under business busiID
+      operatoinId: putPhoto
+      tags:
+        - businesses
+        - photos
+      requestBody:
+        description: Photo data to replace the desired Photo info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Photo'
+      responses:
+        200:
+          description: Success
+        400: 
+          description: Malformed input 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Remove a photo from memory
+      description: overwrite the photo with 'null', no information
+      operatoinId: deletePhoto
+      tags:
+        - businesses
+        - photos
+      responses:
+        204:
+          description: Success, correctly deleted
+
+   /categories:
+    get:
+      summary: Fetch a list of all categories
+      description: returns paginated list of categoriess /w links to other pages
+      operationId: getCategories
+      tags: 
+        - Category
+      parameters:
+        - name: page
+          in: query
+          description: Specifies the page to be returned
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pageNumber:
+                    type: integer
+                    description: Page number of returned objects
+                    example: 1
+                  totalPages: 
+                    type: integer
+                    descritption: Total numbmer of pages available
+                    example: 30
+                  pageSize:
+                    type: integer
+                    description: Number of elements per page
+                    example: 10
+                  totalCount:
+                    type: integer
+                    description: Total number of objects
+                    example: 400
+                  businesses:
+                    type: array
+                    description: The returned object
+                    items: 
+                      $ref: '#/components/schemas/Category'
+ 
+    post:
+      summary: Post a review for a business to the web server
+      description: Returns either a success status or error, adds review to business
+      operatoinId: postReview
+      tags:
+        - buisinesses
+        - reviews
+      requestBody:
+        requred: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reivew'
+      parameters:
+        - name: busiID
+          in: path
+          description: Unique business identifier
+          scheme:
+            type: integer
+            example: 0
+            required: true
+      responses:
+        201:
+          description: Success, Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Identifier for Review, submitted user name
+                    example: UserMan
+                  links:
+                    type: object
+                    items: 
+                      type: string
+                      description: links to related locations
+                      example: '/businesses'
+
+        400:
+          description: Error, Bad Request -- Malformed request or review exists
+          content:
+            $ref: '#/components/schemas/Error'
+
+
+  /categories/{catID}:
+      - name: catiID
+        in: path
+        description: Unique Category identifier
+        schema:
+          type: string:
+        example: "UsernameMon"
+        required: true
+    get: 
+      summary: Get information about a specific category
+      description: Returns detailed information about a category, reviews and photots
+      operatoinId: getSpecificCategory
+      tags: 
+        - categories
+      responses:
+        200: 
+          description: Success
+          content: 
+            application/json: 
+             schema:
+               $ref: '#componenets/schemas/Category'
+    put:
+      summary: update data for a specific cat
+      description: Replace data for a given category specified by catID
+      operatoinId: putCategory
+      tags:
+        - categories
+      requestBody:
+        description: Category data to replace the desired category info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        200:
+          description: Success
+        400: 
+          description: Malformed input 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Remove information about a category from memory
+      description: Overwrite given category information
+      operatoinId: deleteCategory
+      tags:
+        - categories
+      responses:
+        204:
+          description: Success, correctly deleted
+      
+
+components:
+  schemas:
+    User:
+      description: An object representing a user
       type: object
       properties:
+        username:
+          type: string
+          description: Unique username associated with user
+          example: UserMan
+        firstname:
+          type: string
+          description: First name of user
+          example: John
+        lastname:
+          type: string
+          description: Last name of user
+          example: Hancock
+        email:
+          type: string
+          description: associated email for a user
+          example: JohnHancock@cisco.net
+      required:
+        - username
+        - firstname
+        - lastname
+        - email
+          
+    Business:
+      descritpion: An object containing information about a business
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of business
+          example: Escort services LTD.
         user:
           type: 
             $ref: '#/components/schemas/User'
-        stars:
-          type: integer
-          minimum: 1
-          maximum: 5
-        expense:
-          type: integer
-          minimum: 1
-          maximum: 4
-        text:
+          description: unique identifier for user object
+          example: Business Man Person
+        address:
           type: string
-          example: "This place gave me a new liver, best dinner ever."
-   Photo:
-      description: A photo associated with a business
-      type: object
-      properties:
-        user:
-          type:
-            $ref: '#/components/schemas/User'
-        photo:
-          type: byte
-        caption:
+          description: location of business
+          example: 321 Waverly Place
+        city:
           type: string
-          description: A description
-          example: This is a photo of me at bigManCorp 
-
-
-    Category:
-      description: A category which a business may belong to
-      type: object
-      properties:
-        category: 
+          description: city of business
+          example: New York City
+        state: 
           type: string
-          description: Name of category
-          example: Resturant
-        subcategories:
+          description: state containing business
+          example: New York State
+        zipcode:
+          oneOf:
+            - type: integer
+            - type: string
+          description: zipcode of business
+          example: 97070
+        phone:
+          oneOf:
+            - type: integer
+            - type: string
+          description: contact number for business
+          example: 18005551234
+        website: 
+          type: string
+          description: Web address for business
+          example: "www.businessworks.ru"
+        email:
+          type: string
+          description: contact email for business
+          example: "ourbiz@biz.net"
+        category:
+          type: string
+          description: category classification for the business
+          example: resturant
+        subcategory: 
+          type: string
+          description: subcategory class for the business
+          example: brewpub
+        photos: 
           type: array
-          description:
-          items: 
-            type: object
-            properties: 
-              subcategory: 
-                type: string
-                description: descriptive subcategory for a category. 
-                example: Ethno-Brew-blend-coffeepub
-              
-    Error:
-      description: >
-        An object representing an error response from the API.
-      type: object
-      properties:
-        err:
-          type: string
-          description: A message describing the error.
-  tags:
-    - name: businesses
-      description: >
-        API endpoints related to businesses resources
-    - name: reviews
-      description: >
-        API endpoint for reviews that exist under a business
-    - name: users
-      description: >
-        API endpoints for users.
-    - name: photos
-      description: >
-        API endpoint for photos.
-    - name: categories
-      description: >
-        API endpoint for categories
+          items:
+            type:
+              $ref: '#/components/schemas/Photo'
+          description: array of associated photos with business
+        reviews:
+          type: array
+          items:
+            type:
+              $ref: '#/components/schemas/Review'
+          description: array of reviews for a business
+      required:
+        - user
+        - name
+        - address
+        - city
+        - state
+        - zipcode
+        - phone
+        - category
+        - subcategory
+        - photos
+        - reviews
+
+  Review:
+    description: An object representing a user review and ratings
+    type: object
+    properties:
+      user:
+        type: 
+          $ref: '#/components/schemas/User'
+      stars:
+        type: integer
+        minimum: 1
+        maximum: 5
+      expense:
+        type: integer
+        minimum: 1
+        maximum: 4
+      text:
+        type: string
+        example: "This place gave me a new liver, best dinner ever."
+ Photo:
+    description: A photo associated with a business
+    type: object
+    properties:
+      user:
+        type:
+          $ref: '#/components/schemas/User'
+      photo:
+        type: byte
+      caption:
+        type: string
+        description: A description
+        example: This is a photo of me at bigManCorp 
+
+
+  Category:
+    description: A category which a business may belong to
+    type: object
+    properties:
+      category: 
+        type: string
+        description: Name of category
+        example: Resturant
+      subcategories:
+        type: array
+        description:
+        items: 
+          type: object
+          properties: 
+            subcategory: 
+              type: string
+              description: descriptive subcategory for a category. 
+              example: Ethno-Brew-blend-coffeepub
+            
+  Error:
+    description: >
+      An object representing an error response from the API.
+    type: object
+    properties:
+      err:
+        type: string
+        description: A message describing the error.
+tags:
+  - name: businesses
+    description: >
+      API endpoints related to businesses resources
+  - name: reviews
+    description: >
+      API endpoint for reviews that exist under a business
+  - name: users
+    description: >
+      API endpoints for users.
+  - name: photos
+    description: >
+      API endpoint for photos.
+  - name: categories
+    description: >
+      API endpoint for categories
