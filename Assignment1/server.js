@@ -154,7 +154,7 @@ app.put('/businesses/:busiID', function(req, res, next){
     var id = req.params.busiID;
     if( businesses[id] ){
         if( isValidReq(req, buisAttr) ){
-            business[id] = req.body;
+            businesses[id] = req.body;
             res.status(200).json({
                 links: {
                     business: '/businesses/' + id
@@ -178,7 +178,7 @@ app.delete('/businesses/:busiID', function(req, res, next){
     console.log(" -- req.params:", req.params);
     var id = req.params.busiID;
     if( businesses[id]){
-        businesses[id] = null;
+        delete businesses[id];
         res.status(204).end();
     }else{
         next();
@@ -277,7 +277,7 @@ app.delete('/businesses/:busiID/reviews/:revID', function(req, res, next){
     var reviewID = req.params.revID;
 
     if( businesses[id].reviews[reviewID]){
-        businesses[id].reviews[reviewID] = null;
+        delete businesses[id].reviews[reviewID];
         res.status(204).end();
     }else{
         next();
@@ -402,7 +402,8 @@ app.put('/users/:userID', function(req, res, next){
 
     if( users[userID] ){
         if (isValidReq(req, userAttr)){
-            users[userID] = req.body;
+            delete users[userID]
+            users[req.body.username] = req.body;
             res.status(200).json({
                 links: {
                     users: '/users',
@@ -650,7 +651,7 @@ app.delete('/categories/:catID', function(req, res, next){
     if( categories[catID]){
         if( req.body.subcategory){
             //delete whole category
-            categories[catID] = null;
+            delete categories[catID];
         } else{
             //delete subcategory
             categories[catID].splice( categories.indexOf( req.body.subcategory ), 1);
@@ -660,7 +661,6 @@ app.delete('/categories/:catID', function(req, res, next){
         res.status(200).json({
             category: catID,
             subcategory: req.body.subcategory,
-
         });
     } else{
         res.status(400).json({

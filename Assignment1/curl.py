@@ -12,8 +12,6 @@ import sys
 
 base = "http://localhost:8000"
 
-buisFields = ["user", "name", "address", "city", "state", "zipcode", "phone",\
-    "category", "subcategory"]
 
 reviewFields = ["user", "stars", "expense", "review" ]
 userFields = ["username", "firstname", "lastname", "email"]
@@ -42,29 +40,133 @@ def randPost(link, fields, category=[], subcategory=[]):
     print(response.status_code, response.reason)
     return response
 
-def randDel(link):
-    #only digs into the returned page for "random delete"
-    ret = getBuis()
-    buis = json.loads(ret.text)["buisinesses"]
-    #random.randint
-    #requests.delete(link, json=slated)
 
 
-#randDel("")
+def randString(l=6):
+    return ''.join( random.choices( string.ascii_uppercase \
+            + string.digits, k=l))
 
-reviewFields = ["user", "stars", "expense", "text"]
-userFields = ["username", "firstname", "lastname", "email"]
-randPost(base+"/businesses/"+'0'+"/reviews", reviewFields)
+def randDict(fields=[]):
+    resDict = {}
+    for f in fields:
+        resDict[f] = randString()
+    return resDict
 
-if len(sys.argv) < 2:
-    print("Usage: curl.py [number posts] [num deletes]")
-    exit(1)
-for _ in range(int(sys.argv[1])):
-    randPost( base + "/businesses", buisFields, category="resturant", subcategory=["mexican"])
+def getURL(URL, silent=False):
+    response = requests.get(URL)
+    if( not silent):
+        print(response.text)
+    return response
+
+def postURL(URL, payload=None):
+    return requests.post(URL, json=payload)
+
+def putURL(URL, payload=None):
+    return requests.put(URL, json=payload)
+
+def deleteURL(URL, payload=None):
+    return requests.delete(URL, json=payload)
 
 
 
-#if len(sys.argv) > 2:
-#    for _ in range( int(sys.argv[2]) ):
-#        randDel(base + "businesses")
+
+
+def businessesTest():
+    buisFields = ["user", "name", "address", "city", "state", "zipcode", "phone",\
+        "category", "subcategory"]
+    
+    #get
+    print("Testing Businesses GET /businesses")
+    print(getURL( base+ "/businesses", silent=True))  
+
+    #getID
+    print("Testing get, specified ID")
+    print( getURL( base+ "/businesses/"+ '0', silent=True) )
+
+    #put
+    print("Testing put URL")
+    print(putURL(base+"/businesses/" + '0', payload=randDict(buisFields) ))
+
+    #post
+    print("Testing post to business")
+    
+    print(postURL( base + "/businesses" , payload=randDict(buisFields) ) )
+    #pdb.set_trace()
+    
+    #delete
+    print("Testing delete business")
+    print(deleteURL( base+ "/businesses/"+'0') ) 
+
+    return
+
+
+def userTest():
+    userFields = ["username", "firstname", "lastname", "email"]
+    #get
+    print("Testing User GET /users")
+    print(getURL( base+"/users", silent=True) )
+
+    #post
+    print("Testing user POST /users")
+    tmp = randDict(userFields)
+    tmp['username'] = "Default"
+    print(postURL( base+ "/users", payload=tmp) )
+
+    #getID
+    print("Testing get USER specified ID")
+    print(getURL(base+"/user/"+"Default", silent=True ) )
+
+    #put
+    print("Testing PUT user ID")
+    tmp = randDict(userFields)
+    print(putURL(base+"/users/"+ "Default", payload=tmp ) )
+
+
+    #delete
+
+    return
+
+
+def categoriesTest():
+    #get
+    #getID
+    #put
+    #post
+    #delete
+    return
+
+def photoTest():
+    #put
+    #post
+    #delete
+    return
+
+def reviewTest():
+    reviewFields = ["user", "stars", "expense", "text"]
+    #get
+    #put
+    #post
+    #delete
+    return
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    input("Begin Businesses check")
+    businessesTest()
+    input("Begin User check")
+    userTest()
+    input("Begin Categories check")
+    categoriesTest()
+    input("Begin Photo Test")
+    photoTest()
+    input("Begin review test")
+    reviewTest()
 
