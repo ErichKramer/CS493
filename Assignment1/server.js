@@ -249,7 +249,7 @@ app.put('/businesses/:buisID/reviews/:revID',function(req,res,next){
         next();
     }
     var buis = businesses[id];
-    if( isValidReq( req.body, reviewAttr) ){
+    if( isValidReq( req, reviewAttr) ){
         businesses[id].reviews[revID] = req.body;
 
         res.status(201).json({
@@ -347,7 +347,7 @@ app.get('/users/:userID', function(req, res, next){
         var photos = [];
         var reviews = [];
         var buis = [];
-        for( b in Object.entries(businesses).map(x=>x[1]) ){
+        for( const [key, b] of (Object.entries(businesses)) ){
             var name = b.name;
             var reviews = b.reviews;
 
@@ -378,7 +378,7 @@ app.get('/users/:userID', function(req, res, next){
 app.post('/users', function(req, res, next){
     console.log(" -- req.body:", req.body);
 
-    if( isValidReq( req.body, userAttr) ){
+    if( isValidReq( req, userAttr) ){
         users[req.body.username] = req.body;
         
         res.status(201).json({
@@ -401,7 +401,7 @@ app.put('/users/:userID', function(req, res, next){
     var userID = req.params.userID;
 
     if( users[userID] ){
-        if (isValidReq(req.body, userAttr)){
+        if (isValidReq(req, userAttr)){
             users[userID] = req.body;
             res.status(200).json({
                 links: {
