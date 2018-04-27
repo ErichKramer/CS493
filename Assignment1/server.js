@@ -589,7 +589,7 @@ app.post('/categories', function(req, res, next){
         category: req.body.category,
         subcategory: req.body.subcategory,
         links: {
-            categories: '/categories'
+            categories: '/categories',
             businesses: '/businesses'
         }
     });
@@ -597,23 +597,78 @@ app.post('/categories', function(req, res, next){
 
 });
 
-//edit a category
+
+//edit a category, things can be remvoed or given to the array 
+//but subcategories remain unchanged other than being removed or added
 app.put('/categories/:catID', function(req, res, next){
+    console.log(" -- req.body", req.body);
+    console.log(" -- req.params", req.params);
 
+    var catID = req.params.catID;
+    var subcategories = req.body.subcategories;
+    var categoryName = req.body.category;//allow changing the name of a category
+    
+    if(!categories[catID]){
+        next();
+    }
 
+    if( !categoryName && !subcategories){
+        res.status(400).json({
+            err: "Malformed expression [put]. None of expected fields were filled."
+        }
+    }
+    
+    if(subcategories){
+        categories[catID] = subcategories;
+    }
 
+    if (categoryName){
+        categories[categoryName] = categories[catID];
+        categories[catID] = null;
+    }
+    var cat = categoryName || catID;
+    res.status(200).json({
+        category: cat,
+        subcategories: categories[cat],
+        links: {
+            categories: '/categories',
+            current : '/categories/' + cat
+        }
+    });
 });
-
 
 
 //if no subcategory clear whole category
 //if category and subcategory delete only subcategory
 //if no category error
-app.delete('/categories/:categoryid' function(req, res, next){
+app.delete('/categories/:catID', function(req, res, next){
+    console.log(" -- req.body", req.body);
+    console.log(" -- req.params", req.params);
 
+    var catID = req.params.catID;
 
-}
+    if( categories[catID]){
+        if( req.body.subcategory){
+            //delete whole category
+            categories[catID] = null;
+        } else{
+            //delete subcategory
+            categories[catID].splice( categories.indexOf( req.body.subcategory ), 1);
+            //buuuiieeeee
 
+        }
+        res.status(200).json({
+            category: catID,
+            subcategory: req.body.subcategory,
+
+        });
+    } else{
+        res.status(400).json({
+            err: 'malformed expression [put]. did you fill all fields?'
+        });
+    }
+
+});
 
 
 app.use('*', function(req, res, next){
